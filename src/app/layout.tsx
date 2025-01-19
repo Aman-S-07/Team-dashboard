@@ -20,12 +20,12 @@ export default function RootLayout({
             <div className="flex items-center mb-8">
               <h1 className="text-2xl font-bold flex-1">Team Dashboard</h1>
               {/* Sidebar close button */}
-              <button
+              {/* <button
                 onClick={() => setSidebarVisible(false)}
                 className="text-white focus:outline-none"
               >
                 <XMarkIcon className="h-6 w-6" />
-              </button>
+              </button> */}
             </div>
             <ul className="space-y-4">
               <li>

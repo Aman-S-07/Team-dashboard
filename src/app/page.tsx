@@ -130,16 +130,20 @@ const HomePage = () => {
         />
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredMembers.map((member) => (
-          <Member
-            key={member.id}
-            member={member}
-            deleteMember={deleteMember}
-            viewTask={viewTask}
-          />
-        ))}
-      </div>
+      {filteredMembers.length === 0 ? (
+        <div className="text-center text-gray-700 mt-6">Member not found</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredMembers.map((member) => (
+            <Member
+              key={member.id}
+              member={member}
+              deleteMember={deleteMember}
+              viewTask={viewTask}
+            />
+          ))}
+        </div>
+      )}
 
       {showTaskModal && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
