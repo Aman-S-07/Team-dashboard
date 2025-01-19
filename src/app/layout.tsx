@@ -1,6 +1,3 @@
-
-
-
 "use client";
 import Link from "next/link";
 import { useState } from "react";
@@ -12,7 +9,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [isSidebarVisible, setSidebarVisible] = useState(true);
+  const [isSidebarVisible, setSidebarVisible] = useState(true); // Default is visible
 
   return (
     <html lang="en">

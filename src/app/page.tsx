@@ -30,7 +30,6 @@ const HomePage = () => {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [selectedMemberTasks, setSelectedMemberTasks] = useState<string>("");
 
-  // Load members from localStorage on initial render
   useEffect(() => {
     const storedMembers = localStorage.getItem("teamMembers");
     if (storedMembers) {
@@ -38,7 +37,6 @@ const HomePage = () => {
     }
   }, []);
 
-  // Add a new member
   const addMember = () => {
     if (!newMember.name || !newMember.role || !newMember.bio) {
       alert("Please fill all fields.");
@@ -50,28 +48,19 @@ const HomePage = () => {
 
     const updatedMembers = [...members, newMemberWithId];
     setMembers(updatedMembers);
-
-    // Update localStorage
     localStorage.setItem("teamMembers", JSON.stringify(updatedMembers));
-
     setNewMember({ name: "", role: "", bio: "" });
     setShowAddMemberForm(false);
     alert("Member added successfully");
   };
 
-  // Delete a member
   const deleteMember = (id: number) => {
     const updatedMembers = members.filter((member) => member.id !== id);
-
     setMembers(updatedMembers);
-
-    // Update localStorage
     localStorage.setItem("teamMembers", JSON.stringify(updatedMembers));
-
     alert("Member deleted successfully");
   };
 
-  // View tasks for a member
   const viewTask = (id: number) => {
     const member = members.find((m) => m.id === id);
     if (member) {
@@ -103,13 +92,11 @@ const HomePage = () => {
     }
   };
 
-  // Close the task modal
   const closeModal = () => {
     setShowTaskModal(false);
     setSelectedMemberTasks("");
   };
 
-  // Filter members based on search input
   const filteredMembers = members.filter(
     (member) =>
       member.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -117,18 +104,18 @@ const HomePage = () => {
   );
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
         <input
           type="text"
           placeholder="Search by name or role..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="px-4 py-2 border rounded"
+          className="px-4 py-2 border rounded w-full md:w-1/2"
         />
         <button
           onClick={() => setShowAddMemberForm(!showAddMemberForm)}
-          className="px-4 py-2 bg-blue-500 text-white rounded"
+          className="px-4 py-2 bg-blue-500 text-white rounded w-full md:w-auto"
         >
           Add New Member
         </button>
@@ -143,7 +130,7 @@ const HomePage = () => {
         />
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredMembers.map((member) => (
           <Member
             key={member.id}
@@ -154,7 +141,6 @@ const HomePage = () => {
         ))}
       </div>
 
-      {/* Task Modal */}
       {showTaskModal && (
         <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg w-96 max-w-full">
