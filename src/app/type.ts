@@ -17,3 +17,16 @@ export type Task = {
     tasks: Task[];
   };
   
+
+
+  export interface Member {
+
+    id: number;
+  
+    name: string;
+  
+    role: string;
+  
+  }
+  
+  

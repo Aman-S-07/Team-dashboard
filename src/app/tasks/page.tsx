@@ -81,30 +81,25 @@ const TaskManager = () => {
 
       // Update selected member's tasks
       setSelectedMember((prev) => {
-        if (!prev) return null;
-        const updatedTasks = isEditingTask
-          ? prev.tasks.map((task) =>
-              task.id === newTask.id ? updatedTask : task
-            )
-          : [...(prev.tasks || []), updatedTask];
-        return { ...prev, tasks: updatedTasks };
+        if (prev) {
+          return {
+            ...prev,
+            tasks: isEditingTask
+              ? prev.tasks.map((task) =>
+                  task.id === newTask.id ? updatedTask : task
+                )
+              : [...prev.tasks, updatedTask],
+          };
+        }
+        return prev;
       });
 
-      // Save updated members to localStorage
+      // Update localStorage
       updateLocalStorage(updatedMembers);
 
-      // Optionally, save the selected member to localStorage
-      localStorage.setItem("selectedMember", JSON.stringify(selectedMember));
-
+      setIsEditingTask(false);
+      setNewTask({ id: 0, title: "", description: "", status: "To Do" });
     }
-
-    setNewTask({ id: 0, title: "", description: "", status: "To Do" });
-    setIsEditingTask(false);
-  };
-
-  const handleSelectMember = (member: TeamMember) => {
-    setSelectedMember(member);
-    localStorage.setItem("selectedMember", JSON.stringify(member)); // Store selected member in localStorage
   };
 
   const handleEditTask = (task: Task) => {
@@ -123,130 +118,119 @@ const TaskManager = () => {
           : member
       );
 
-      // Save updated members to state
+      // Save updated members to state and localStorage
       setMembers(updatedMembers);
+      updateLocalStorage(updatedMembers);
 
       // Update selected member's tasks
       setSelectedMember((prev) => {
-        if (!prev) return null;
-        const updatedTasks = prev.tasks.filter((task) => task.id !== taskId);
-        return { ...prev, tasks: updatedTasks };
+        if (prev) {
+          return {
+            ...prev,
+            tasks: prev.tasks.filter((task) => task.id !== taskId),
+          };
+        }
+        return prev;
       });
-
-      // Save updated members to localStorage
-      updateLocalStorage(updatedMembers);
-
-      // Optionally, save the selected member to localStorage
-      localStorage.setItem("selectedMember", JSON.stringify(selectedMember));
     }
   };
 
+  const handleCancelEdit = () => {
+    setNewTask({ id: 0, title: "", description: "", status: "To Do" });
+    setIsEditingTask(false);
+  };
+
   return (
-    <div className="flex h-screen">
-      <div className="w-1/4 bg-gray-200 p-4">
-        <h2 className="text-lg font-bold mb-4">Team Members</h2>
-        <ul>
+    <div className="p-6 space-y-6">
+      <h2 className="text-xl mb-4">Task Manager</h2>
+      <div className="mb-4">
+        <select
+          className="p-2 border rounded"
+          onChange={(e) => {
+            const member = members.find((m) => m.id === +e.target.value);
+            setSelectedMember(member || null);
+          }}
+        >
+          <option value="">Select Team Member</option>
           {members.map((member) => (
-            <li
-              key={member.id}
-              className={`p-2 mb-2 rounded cursor-pointer ${
-                selectedMember?.id === member.id ? "bg-blue-500 text-white" : "bg-gray-100"
-              }`}
-              onClick={() => handleSelectMember(member)} // Fixing member selection
-            >
+            <option key={member.id} value={member.id}>
               {member.name}
-            </li>
+            </option>
           ))}
-        </ul>
+        </select>
       </div>
 
-      <div className="w-3/4 p-4">
-        {selectedMember ? (
-          <>
-            <h2 className="text-2xl font-bold mb-4">
-              Tasks for {selectedMember.name}
-            </h2>
-            <ul className="mb-4">
-              {selectedMember.tasks && selectedMember.tasks.length > 0 ? (
-                selectedMember.tasks.map((task) => (
-                  <li
-                    key={task.id}
-                    className="p-4 mb-2 bg-gray-100 rounded flex justify-between items-center"
-                  >
-                    <div>
-                      <h3 className="font-semibold">{task.title}</h3>
-                      <p>{task.description}</p>
-                      <p className="text-sm text-gray-600">Status: {task.status}</p>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleEditTask(task)}
-                        className="px-4 py-2 bg-blue-500 text-white rounded"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteTask(task.id)}
-                        className="px-4 py-2 bg-red-500 text-white rounded"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </li>
-                ))
-              ) : (
-                <p>No tasks available for this member.</p>
-              )}
-            </ul>
-            <div>
-              <h3 className="text-lg font-bold mb-2">
-                {isEditingTask ? "Edit Task" : "Add Task"}
-              </h3>
-              <div className="flex flex-col space-y-2">
-                <input
-                  type="text"
-                  placeholder="Title"
-                  value={newTask.title}
-                  onChange={(e) =>
-                    setNewTask((prev) => ({ ...prev, title: e.target.value }))
-                  }
-                  className="p-2 border rounded"
-                />
-                <textarea
-                  placeholder="Description"
-                  value={newTask.description}
-                  onChange={(e) =>
-                    setNewTask((prev) => ({ ...prev, description: e.target.value }))
-                  }
-                  className="p-2 border rounded"
-                ></textarea>
-                <select
-                  value={newTask.status}
-                  onChange={(e) =>
-                    setNewTask((prev) => ({
-                      ...prev,
-                      status: e.target.value as Task["status"],
-                    }))
-                  }
-                  className="p-2 border rounded"
-                >
-                  <option value="To Do">To Do</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Completed">Completed</option>
-                </select>
+      {selectedMember && (
+        <div>
+          <h3 className="font-bold">{selectedMember.name}&#39;s Tasks</h3>
+          <ul className="list-none">
+            {selectedMember.tasks.map((task) => (
+              <li key={task.id} className="mb-2">
+                <div className="flex justify-between">
+                  <div>{task.title}</div>
+                  <div className="text-sm text-gray-500">{task.status}</div>
+                </div>
+                <div>{task.description}</div>
                 <button
-                  onClick={handleSaveTask}
-                  className="px-6 py-2 bg-green-500 text-white rounded"
+                  className="text-blue-500"
+                  onClick={() => handleEditTask(task)}
                 >
-                  Save Task
+                  Edit
                 </button>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div>Select a member to view their tasks</div>
-        )}
-      </div>
+                <button
+                  className="text-red-500 ml-2"
+                  onClick={() => handleDeleteTask(task.id)}
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+          <h4 className="mt-4 font-bold">Add/Edit Task</h4>
+          <input
+            type="text"
+            className="p-2 border rounded w-full"
+            placeholder="Task title"
+            value={newTask.title}
+            onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+          />
+          <textarea
+            className="p-2 border rounded w-full mt-2"
+            placeholder="Task description"
+            value={newTask.description}
+            onChange={(e) =>
+              setNewTask({ ...newTask, description: e.target.value })
+            }
+          />
+          <select
+            className="p-2 border rounded w-full mt-2"
+            value={newTask.status}
+            onChange={(e) =>
+              setNewTask({ ...newTask, status: e.target.value as Task["status"] })
+            }
+          >
+            <option value="To Do">To Do</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <div className="mt-2">
+            <button
+              onClick={handleSaveTask}
+              className="bg-blue-500 text-white py-2 px-4 rounded mr-2"
+            >
+              {isEditingTask ? "Save Changes" : "Add Task"}
+            </button>
+            {isEditingTask && (
+              <button
+                onClick={handleCancelEdit}
+                className="bg-gray-500 text-white py-2 px-4 rounded"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
