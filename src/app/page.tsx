@@ -5,6 +5,7 @@ import Member from "../app/components/Member";
 import AddMemberForm from "../app/components/AddMemberForm";
 import "./globals.css";
 
+// Updated Task type to include title, description, and status
 type Task = {
   id: number;
   title: string;
@@ -12,6 +13,7 @@ type Task = {
   status: "To Do" | "In Progress" | "Completed";
 };
 
+// Updated TeamMember type to reflect tasks as an array of Task objects
 type TeamMember = {
   id: number;
   name: string;
@@ -28,15 +30,13 @@ const HomePage = () => {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [selectedMemberTasks, setSelectedMemberTasks] = useState<string>("");
 
-  // Fetch members from API on component mount
+  // Re-fetch members from localStorage when page loads or when data changes
   useEffect(() => {
-    const fetchMembers = async () => {
-      const res = await fetch("/api/members");
-      const data = await res.json();
-      setMembers(data);
-    };
-
-    fetchMembers();
+    const storedMembers = localStorage.getItem("teamMembers");
+    if (storedMembers) {
+      const parsedMembers = JSON.parse(storedMembers);
+      setMembers(parsedMembers);
+    }
   }, []);
 
   // Add a new member
@@ -52,39 +52,21 @@ const HomePage = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...newMember, tasks: [] }),
+        body: JSON.stringify(newMember),
       });
 
       if (!res.ok) throw new Error("Failed to add member");
 
       const data = await res.json();
       setMembers((prevMembers) => [...prevMembers, data]);
+      // Update localStorage
+      localStorage.setItem("teamMembers", JSON.stringify([...members, data]));
       setNewMember({ name: "", role: "", bio: "" });
       setShowAddMemberForm(false);
       alert("Member added successfully");
     } catch (error) {
       console.error("Error adding member:", error);
       alert("Error adding member. Please try again.");
-    }
-  };
-
-  // Delete a member
-  const deleteMember = async (id: number) => {
-    try {
-      const res = await fetch(`/api/members?id=${id}`, { method: "DELETE" });
-
-      if (!res.ok) {
-        const errorText = await res.text(); // Log the error response
-        throw new Error(`Failed to delete member: ${errorText}`);
-      }
-
-      setMembers((prevMembers) =>
-        prevMembers.filter((member) => member.id !== id)
-      );
-      alert("Member deleted successfully");
-    } catch (error) {
-      console.error("Error deleting member:", error);
-      alert("Error deleting member. Please check your network connection.");
     }
   };
 
@@ -114,7 +96,7 @@ const HomePage = () => {
       } else {
         setSelectedMemberTasks("<div>No tasks assigned.</div>");
       }
-      setShowTaskModal(true);
+      setShowTaskModal(true); // Show the modal
     } else {
       alert("Member not found");
     }
@@ -123,7 +105,7 @@ const HomePage = () => {
   // Close the task modal
   const closeModal = () => {
     setShowTaskModal(false);
-    setSelectedMemberTasks("");
+    setSelectedMemberTasks(""); // Clear tasks when closing modal
   };
 
   // Filter members based on search input
@@ -165,8 +147,7 @@ const HomePage = () => {
           <Member
             key={member.id}
             member={member}
-            deleteMember={deleteMember}
-            viewTask={viewTask}
+            viewTask={viewTask} // Removed deleteMember
           />
         ))}
       </div>
