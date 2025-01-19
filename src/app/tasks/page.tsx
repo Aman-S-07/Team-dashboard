@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 
 type Task = {
@@ -27,29 +28,26 @@ const TaskManager = () => {
   });
   const [isEditingTask, setIsEditingTask] = useState(false);
 
-  // Load members from localStorage
   useEffect(() => {
     const storedMembers = localStorage.getItem("teamMembers");
     if (storedMembers) {
       const parsedMembers = JSON.parse(storedMembers);
-      // Ensure each member has a tasks array
       const membersWithTasks = parsedMembers.map((member: TeamMember) => ({
         ...member,
-        tasks: member.tasks || [], // Set empty array if tasks are not defined
+        tasks: member.tasks || [],
       }));
       setMembers(membersWithTasks);
 
-      // If there's a selected member in localStorage, set it
       const savedSelectedMember = localStorage.getItem("selectedMember");
       if (savedSelectedMember) {
         setSelectedMember(JSON.parse(savedSelectedMember));
       }
     } else {
-      console.error("No members found in localStorage.");
+      // Set empty array if no members are found
+      setMembers([]);
     }
   }, []);
 
-  // Update localStorage whenever members or tasks change
   const updateLocalStorage = (updatedMembers: TeamMember[]) => {
     localStorage.setItem("teamMembers", JSON.stringify(updatedMembers));
   };
@@ -76,10 +74,8 @@ const TaskManager = () => {
           : member
       );
 
-      // Save updated members to state
       setMembers(updatedMembers);
 
-      // Update selected member's tasks
       setSelectedMember((prev) => {
         if (!prev) return null;
         const updatedTasks = isEditingTask
@@ -90,12 +86,8 @@ const TaskManager = () => {
         return { ...prev, tasks: updatedTasks };
       });
 
-      // Save updated members to localStorage
       updateLocalStorage(updatedMembers);
-
-      // Optionally, save the selected member to localStorage
       localStorage.setItem("selectedMember", JSON.stringify(selectedMember));
-
     }
 
     setNewTask({ id: 0, title: "", description: "", status: "To Do" });
@@ -104,7 +96,7 @@ const TaskManager = () => {
 
   const handleSelectMember = (member: TeamMember) => {
     setSelectedMember(member);
-    localStorage.setItem("selectedMember", JSON.stringify(member)); // Store selected member in localStorage
+    localStorage.setItem("selectedMember", JSON.stringify(member));
   };
 
   const handleEditTask = (task: Task) => {
@@ -123,20 +115,15 @@ const TaskManager = () => {
           : member
       );
 
-      // Save updated members to state
       setMembers(updatedMembers);
 
-      // Update selected member's tasks
       setSelectedMember((prev) => {
         if (!prev) return null;
         const updatedTasks = prev.tasks.filter((task) => task.id !== taskId);
         return { ...prev, tasks: updatedTasks };
       });
 
-      // Save updated members to localStorage
       updateLocalStorage(updatedMembers);
-
-      // Optionally, save the selected member to localStorage
       localStorage.setItem("selectedMember", JSON.stringify(selectedMember));
     }
   };
@@ -146,17 +133,23 @@ const TaskManager = () => {
       <div className="w-1/4 bg-gray-200 p-4">
         <h2 className="text-lg font-bold mb-4">Team Members</h2>
         <ul>
-          {members.map((member) => (
-            <li
-              key={member.id}
-              className={`p-2 mb-2 rounded cursor-pointer ${
-                selectedMember?.id === member.id ? "bg-blue-500 text-white" : "bg-gray-100"
-              }`}
-              onClick={() => handleSelectMember(member)} // Fixing member selection
-            >
-              {member.name}
-            </li>
-          ))}
+          {members.length > 0 ? (
+            members.map((member) => (
+              <li
+                key={member.id} // Using member.id as the key
+                className={`p-2 mb-2 rounded cursor-pointer ${
+                  selectedMember?.id === member.id
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-100"
+                }`}
+                onClick={() => handleSelectMember(member)}
+              >
+                {member.name}
+              </li>
+            ))
+          ) : (
+            <p>No team members available. Add members to start managing tasks.</p>
+          )}
         </ul>
       </div>
 
@@ -167,16 +160,18 @@ const TaskManager = () => {
               Tasks for {selectedMember.name}
             </h2>
             <ul className="mb-4">
-              {selectedMember.tasks && selectedMember.tasks.length > 0 ? (
+              {selectedMember.tasks.length > 0 ? (
                 selectedMember.tasks.map((task) => (
                   <li
-                    key={task.id}
+                    key={task.id} // Using task.id as the key
                     className="p-4 mb-2 bg-gray-100 rounded flex justify-between items-center"
                   >
                     <div>
                       <h3 className="font-semibold">{task.title}</h3>
                       <p>{task.description}</p>
-                      <p className="text-sm text-gray-600">Status: {task.status}</p>
+                      <p className="text-sm text-gray-600">
+                        Status: {task.status}
+                      </p>
                     </div>
                     <div className="flex space-x-2">
                       <button
@@ -216,7 +211,10 @@ const TaskManager = () => {
                   placeholder="Description"
                   value={newTask.description}
                   onChange={(e) =>
-                    setNewTask((prev) => ({ ...prev, description: e.target.value }))
+                    setNewTask((prev) => ({
+                      ...prev,
+                      description: e.target.value,
+                    }))
                   }
                   className="p-2 border rounded"
                 ></textarea>

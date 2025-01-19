@@ -5,7 +5,7 @@ import Member from "../app/components/Member";
 import AddMemberForm from "../app/components/AddMemberForm";
 import "./globals.css";
 
-// Updated Task type to include title, description, and status
+// Task type for tasks assigned to a member
 type Task = {
   id: number;
   title: string;
@@ -13,7 +13,7 @@ type Task = {
   status: "To Do" | "In Progress" | "Completed";
 };
 
-// Updated TeamMember type to reflect tasks as an array of Task objects
+// TeamMember type with tasks as an array of Task objects
 type TeamMember = {
   id: number;
   name: string;
@@ -30,44 +30,45 @@ const HomePage = () => {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [selectedMemberTasks, setSelectedMemberTasks] = useState<string>("");
 
-  // Re-fetch members from localStorage when page loads or when data changes
+  // Load members from localStorage on initial render
   useEffect(() => {
     const storedMembers = localStorage.getItem("teamMembers");
     if (storedMembers) {
-      const parsedMembers = JSON.parse(storedMembers);
-      setMembers(parsedMembers);
+      setMembers(JSON.parse(storedMembers));
     }
   }, []);
 
   // Add a new member
-  const addMember = async () => {
+  const addMember = () => {
     if (!newMember.name || !newMember.role || !newMember.bio) {
       alert("Please fill all fields.");
       return;
     }
 
-    try {
-      const res = await fetch("/api/members", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newMember),
-      });
+    const uniqueId = Math.max(0, ...members.map((m) => m.id)) + 1;
+    const newMemberWithId = { ...newMember, id: uniqueId, tasks: [] };
 
-      if (!res.ok) throw new Error("Failed to add member");
+    const updatedMembers = [...members, newMemberWithId];
+    setMembers(updatedMembers);
 
-      const data = await res.json();
-      setMembers((prevMembers) => [...prevMembers, data]);
-      // Update localStorage
-      localStorage.setItem("teamMembers", JSON.stringify([...members, data]));
-      setNewMember({ name: "", role: "", bio: "" });
-      setShowAddMemberForm(false);
-      alert("Member added successfully");
-    } catch (error) {
-      console.error("Error adding member:", error);
-      alert("Error adding member. Please try again.");
-    }
+    // Update localStorage
+    localStorage.setItem("teamMembers", JSON.stringify(updatedMembers));
+
+    setNewMember({ name: "", role: "", bio: "" });
+    setShowAddMemberForm(false);
+    alert("Member added successfully");
+  };
+
+  // Delete a member
+  const deleteMember = (id: number) => {
+    const updatedMembers = members.filter((member) => member.id !== id);
+
+    setMembers(updatedMembers);
+
+    // Update localStorage
+    localStorage.setItem("teamMembers", JSON.stringify(updatedMembers));
+
+    alert("Member deleted successfully");
   };
 
   // View tasks for a member
@@ -96,7 +97,7 @@ const HomePage = () => {
       } else {
         setSelectedMemberTasks("<div>No tasks assigned.</div>");
       }
-      setShowTaskModal(true); // Show the modal
+      setShowTaskModal(true);
     } else {
       alert("Member not found");
     }
@@ -105,7 +106,7 @@ const HomePage = () => {
   // Close the task modal
   const closeModal = () => {
     setShowTaskModal(false);
-    setSelectedMemberTasks(""); // Clear tasks when closing modal
+    setSelectedMemberTasks("");
   };
 
   // Filter members based on search input
@@ -147,7 +148,8 @@ const HomePage = () => {
           <Member
             key={member.id}
             member={member}
-            viewTask={viewTask} // Removed deleteMember
+            deleteMember={deleteMember}
+            viewTask={viewTask}
           />
         ))}
       </div>
