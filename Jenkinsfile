@@ -17,7 +17,7 @@ pipeline {
                     extensions: [],
                     userRemoteConfigs: [[
                         url: 'https://github.com/Aman-S-07/Team-dashboard.git',
-                        credentialsId: '6ce21b84-57b0-46ef-a9f7-4e84f813939e'
+                        credentialsId: '93eb145d-b742-4cb4-9426-af670afec9b8'
                     ]]
                 ])
             }
