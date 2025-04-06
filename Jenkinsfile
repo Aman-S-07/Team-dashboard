@@ -10,8 +10,11 @@ pipeline {
     stages {
         stage('Clone Repo') {
             steps {
+                // Cloning manually with credentials
                 checkout([$class: 'GitSCM',
                     branches: [[name: '*/main']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [],
                     userRemoteConfigs: [[
                         url: 'https://github.com/Aman-S-07/Team-dashboard.git',
                         credentialsId: '6ce21b84-57b0-46ef-a9f7-4e84f813939e'
