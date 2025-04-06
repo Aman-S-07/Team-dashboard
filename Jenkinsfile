@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Clone Repo') {
             steps {
-                git 'https://github.com/Aman-S-07/Team-dashboard.git'
+                git branch: 'main', url: 'https://github.com/Aman-S-07/Team-dashboard.git'
             }
         }
 
@@ -33,4 +33,3 @@ pipeline {
         }
     }
 }
-
