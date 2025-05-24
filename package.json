@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
-    "@vercel/speed-insights": "^1.1.0",
+    "@vercel/speed-insights": "^1.2.0",
     "clsx": "^2.1.1",
     "eslint-plugin-react-hooks": "^5.2.0-canary-d46b04a2-20250117",
-    "next": "15.1.4",
+    "next": "^15.1.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.1.1"
