@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid"; // Import icons
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
+import { SpeedInsights } from '@vercel/speed-insights/next'; // ✅ Imported here
 import "./globals.css";
 
 export default function RootLayout({
@@ -9,7 +10,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [isSidebarVisible, setSidebarVisible] = useState(true); // Default is visible
+  const [isSidebarVisible, setSidebarVisible] = useState(true);
 
   return (
     <html lang="en">
@@ -70,6 +71,9 @@ export default function RootLayout({
         >
           {children}
         </div>
+
+        {/* ✅ SpeedInsights added here */}
+        <SpeedInsights />
       </body>
     </html>
   );
